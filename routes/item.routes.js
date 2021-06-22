@@ -2,6 +2,14 @@ const Router = require('express');
 const router = Router();
 const Item = require('../models/item');
 
+router.get('/', async (req, res) => {
+    try {
+        res.json(await Item.find())
+    } catch (e) {
+        return res.status(400).json(e);
+    }
+})
+
 router.post('/add', async (req, res) => {
     try {
         const { nickname, text, comment } = req.body;

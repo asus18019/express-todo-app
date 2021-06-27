@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     } catch (e) {
         return res.status(400).json(e);
     }
-})
+});
 
 router.post('/add', async (req, res) => {
     try {
@@ -26,17 +26,22 @@ router.post('/add', async (req, res) => {
 router.delete('/remove', async (req,res) => {
     try {
         const { id } = req.body;
-        if(id.trim() === '') throw new Error();
+        if(id.trim() === '') new Error('id is empty');
         await Item.findByIdAndDelete(id);
 
         res.json({'message': 'success'});
     } catch (e) {
         return res.status(400).json(e);
     }
-})
+});
 
 const getDate = () => {
-    return new Date().toString().substring(0, 24);
+    return new Date().addHours(3).toString().substring(0, 24);
+}
+
+Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
 }
 
 module.exports = router;

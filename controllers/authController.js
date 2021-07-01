@@ -13,6 +13,20 @@ const generateAccessToken = (id, role) => {
     return jwt.sign(payload, secret, {expiresIn: "24h"});
 }
 
+const checkDuplicateUsername = async (res, username) => {
+    const candidate = await User.findOne({username});
+    if (candidate) {
+        return true;
+    }
+}
+
+const setUserRole = async () => {
+    const { value } = await Role.findOne({value: "USER"});
+    return value;
+}
+
+const hashPassword = (password) => bcrypt.hashSync(password, 8);
+
 class AuthController {
     async registration(req, res) {
         try {
@@ -21,13 +35,10 @@ class AuthController {
                 return res.status(400).json({message: "Registration error", errors});
             }
             const {username, password} = req.body;
-            const candidate = await User.findOne({username});
-            if (candidate) {
+            if(await checkDuplicateUsername(res, username)){
                 return res.status(400).json({message: 'username already exist'});
             }
-            const userRole = await Role.findOne({value: "USER"});
-            const hashPassword = bcrypt.hashSync(password, 8);
-            const user = new User({username, password: hashPassword, roles: [userRole.value]});
+            const user = new User({username, password: hashPassword(password), roles: [await setUserRole()]});
             await user.save();
             return res.json({message: 'Registered'});
         } catch (e) {

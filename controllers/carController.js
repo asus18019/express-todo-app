@@ -16,11 +16,23 @@ const setCarIDtoUser = async (userID, car) => {
     return user;
 }
 
+const getCars = async (req, res, userID) => {
+    const { cars } = await User.findById(userID);
+    let carsInfo = [];
+    for (const car of cars) {
+        let carObj = await Car.findById(car)
+        if(carObj !== null){
+            carsInfo.push(carObj);
+        }
+    }
+    return carsInfo;
+}
+
 class carController {
-    async createCar (req, res) {
+    async createCar(req, res) {
         try {
             const userID = getAuthUserID(req);
-            const { title, model, color, weight } = req.body;
+            const {title, model, color, weight} = req.body;
             const newCar = new Car({
                 title,
                 model,
@@ -35,6 +47,18 @@ class carController {
             res.status(400).json({message: 'Create car error', errors: e});
         }
     };
+
+    async getUserCars(req, res) {
+        try {
+            const authUserID = getAuthUserID(req);
+            const cars = await getCars(req, res, authUserID)
+            res.json(cars);
+        } catch (e) {
+            console.log(e)
+            res.status(400).json({message: 'Get car error', errors: e});
+        }
+    }
+    
 }
 
 module.exports = new carController();

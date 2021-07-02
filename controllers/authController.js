@@ -32,13 +32,17 @@ class AuthController {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                return res.status(400).json({message: "Registration error", errors});
+                return res.status(400).json({message: errors});
             }
             const {username, password} = req.body;
             if(await checkDuplicateUsername(res, username)){
                 return res.status(400).json({message: 'username already exist'});
             }
-            const user = new User({username, password: hashPassword(password), roles: [await setUserRole()]});
+            const user = new User({
+                username,
+                password: hashPassword(password),
+                roles: [await setUserRole()]
+            });
             await user.save();
             return res.json({message: 'Registered'});
         } catch (e) {

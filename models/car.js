@@ -1,22 +1,22 @@
 const {Schema, model} = require('mongoose');
 
-const schema = new Schema({
-    nickname: {
+const car = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    model: {
         type: String,
         required: true
     },
-    date: {
+    color: {
         type: String,
         required: true
     },
-    text: {
+    weight: {
         type: Number,
         required: true
-    },
-    comment: {
-        type: Number,
-        required: true
-    },
+    }
 })
 
-module.exports = model('Item', schema);
+module.exports = model('Car', car);

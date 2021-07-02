@@ -4,11 +4,13 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 3000;
 
-// app.use(express.urlencoded({ extended: true }));
-
 app.use(express.json());
 
-app.use('/api', require('./routes/item.routes'), require('./routes/user.routes'));
+app.use('/api',
+    require('./routes/item.routes'),
+    require('./routes/user.routes'),
+    require('./routes/car.routes')
+);
 
 const start = async () => {
     try {

@@ -1,5 +1,6 @@
 const carService = require('../services/carService');
 const userService = require('../services/userService');
+const User = require('../models/user');
 const {validationResult} = require("express-validator");
 
 class carController {
@@ -31,12 +32,15 @@ class carController {
             if (!errors.isEmpty()) {
                 return res.status(400).json({message: errors});
             }
+
             const { _id: carID } = req.body;
             const userID = userService.getAuthUserIDByToken(req);
-            const cars = await carService.deleteCar(carID, userID);
-            if(!cars) {
+
+            const { cars: userCars } = await User.findById(userID);
+            if(!await carService.isCarBelongsToUser(userCars, carID)){
                 return res.status(400).json({message: 'Car not belongs to auth user'});
             }
+            const cars = await carService.deleteCar(carID, userID);
             res.json(cars);
         } catch (e) {
             console.log(e)

@@ -29,16 +29,11 @@ class carService {
     };
 
     async deleteCar(carID, userID) {
-        const { cars } = await User.findById(userID);
-        if(!await this.isCarBelongsToUser(cars, carID)){
-            return false;
-        } else {
-            const user = await User.findById(userID);
-            user.cars = user.cars.filter(car => car.toString() !== carID);
-            user.save();
-            await Car.findByIdAndDelete(carID);
-            return await this.getCars(userID);
-        }
+        const user = await User.findById(userID);
+        user.cars = user.cars.filter(car => car.toString() !== carID);
+        user.save();
+        await Car.findByIdAndDelete(carID);
+        return await this.getCars(userID);
     }
 
     async isCarBelongsToUser(cars, carID) {

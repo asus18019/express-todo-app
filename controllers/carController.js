@@ -1,7 +1,6 @@
 const carService = require('../services/carService');
 const userService = require('../services/userService');
 const User = require('../models/user');
-const {validationResult} = require("express-validator");
 
 class carController {
     async createCarByUser(req, res) {
@@ -28,8 +27,8 @@ class carController {
 
     async deleteCarByUser(req, res) {
         try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
+            const errors = await carService.checkForValidationErrors(req);
+            if(errors) {
                 return res.status(400).json({message: errors});
             }
 
@@ -42,6 +41,29 @@ class carController {
             }
             const cars = await carService.deleteCar(carID, userID);
             res.json(cars);
+        } catch (e) {
+            console.log(e)
+            res.status(400).json({message: 'Delete car error', errors: e});
+        }
+    }
+
+    async updateCar(req, res) {
+        try {
+            const errors = await carService.checkForValidationErrors(req);
+            if(errors) {
+                return res.status(400).json({message: errors});
+            }
+            const { _id: carID } = req.body;
+
+            const userID = userService.getAuthUserIDByToken(req);
+            const { cars: userCars } = await User.findById(userID);
+
+            if(!await carService.isCarBelongsToUser(userCars, carID)){
+                return res.status(400).json({message: 'Car not belongs to auth user'});
+            }
+
+            const updatedCar = await carService.updateCar(req, carID);
+            res.json(updatedCar);
         } catch (e) {
             console.log(e)
             res.status(400).json({message: 'Delete car error', errors: e});
